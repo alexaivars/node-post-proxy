@@ -1,0 +1,12 @@
+{
+  "name": "node-post-proxy",
+  "version": "0.1.0",
+  "dependencies": {
+    "coffee-script": "1.3.3"
+  },
+  "engines": {
+    "node": "0.8.x",
+    "npm": "1.1.x"
+  }
+}
+
