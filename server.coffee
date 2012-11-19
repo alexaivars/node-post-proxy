@@ -7,25 +7,20 @@ server = http.createServer().listen server_port
 server.on "request", (req, res) ->
   params = url.parse(req.url, true).query
   callbackFn = "callback"
-
-  if params.url is undefined or params.url is ""
-    res.write "missing target url"
-    res.end()
-    return
- 
-  if params.data is undefined or params.data is ""
-    res.write "missing post data"
-    res.end()
-    return
- 
+  console.log params
   if params.callback isnt undefined and params.callback isnt ""
     callbackFn = params.callback
 
+  if params.url is undefined or params.url is ""
+    res.write "#{callbackFn} (#{JSON.stringify { status: "ERROR", message : "missing url parameter" }})"
+    res.end()
+    return
+ 
   # console.log callbackFn
   requestUrl = url.parse(params.url)
   # console.log requestUrl
   
-  post_data = params.data
+  post_data = JSON.stringify params
 
   options =
     host: requestUrl.hostname

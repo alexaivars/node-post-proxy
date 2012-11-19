@@ -15,21 +15,20 @@ server.on("request", function(req, res) {
   var callbackFn, client, options, params, post_data, requestUrl;
   params = url.parse(req.url, true).query;
   callbackFn = "callback";
-  if (params.url === void 0 || params.url === "") {
-    res.write("missing target url");
-    res.end();
-    return;
-  }
-  if (params.data === void 0 || params.data === "") {
-    res.write("missing post data");
-    res.end();
-    return;
-  }
+  console.log(params);
   if (params.callback !== void 0 && params.callback !== "") {
     callbackFn = params.callback;
   }
+  if (params.url === void 0 || params.url === "") {
+    res.write("" + callbackFn + " (" + (JSON.stringify({
+      status: "ERROR",
+      message: "missing url parameter"
+    })) + ")");
+    res.end();
+    return;
+  }
   requestUrl = url.parse(params.url);
-  post_data = params.data;
+  post_data = JSON.stringify(params);
   options = {
     host: requestUrl.hostname,
     path: requestUrl.path,
