@@ -18,7 +18,7 @@ server.on "request", (req, res) ->
  
   # console.log callbackFn
   requestUrl = url.parse(params.url)
-  # console.log requestUrl
+  console.log requestUrl
   
   post_data = JSON.stringify params
 
