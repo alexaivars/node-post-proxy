@@ -4,48 +4,34 @@ url = require("url")
 server_port = process.env.PORT || 9006
 server = http.createServer().listen server_port
 
+request = require('request')
+
+
 server.on "request", (req, res) ->
   params = url.parse(req.url, true).query
-  callbackFn = "callback"
-  console.log params
+  
   if params.callback isnt undefined and params.callback isnt ""
     callbackFn = params.callback
+  else
+    callbackFn = "callback"
 
   if params.url is undefined or params.url is ""
-    res.write "#{callbackFn} (#{JSON.stringify { status: "ERROR", message : "missing url parameter" }})"
+    res.write "#{callbackFn} (#{JSON.stringify { status: "ERROR", message : "missing url parameter" }});"
     res.end()
     return
- 
-  # console.log callbackFn
-  requestUrl = url.parse(params.url)
-  console.log requestUrl
-  
-  post_data = JSON.stringify params
 
-  options =
-    host: requestUrl.hostname
-    path: requestUrl.path
-    method: "POST"
-    headers:
-      "Content-Length": post_data.length
-      "Content-Type": "application/json"
-
-  client = http.request(options)
-  client.on "response", (response) ->
-    data = ""
-    response.setEncoding('utf8')
-    response.on "data", (chunk) ->
-      data += chunk
-    response.on "end", () =>
-      @emit("end",data)
-
-  client.write(post_data)
-  client.end()
-
-  client.on "end", (data) ->
-    console.log "parent end"
-    console.log "#{callbackFn} (#{data})"
-    res.write "#{callbackFn} (#{data})"
+  request.post
+    uri: params.url
+    json: params
+  , (error, response, body) ->
+    if response.statusCode is 201
+      res.write "#{callbackFn} (#{JSON.stringify(body)});"
+    else if response.statusCode is 400
+      res.write "#{callbackFn} ({ 'error':'#{JSON.stringify(body)}', 'code': '#{response.statusCode}' });"
+    else
+      res.write "#{callbackFn} ({ 'error':'#{body}', 'code': '#{response.statusCode}' });"
     res.end()
 
 console.log "post proxy running on #{server_port}"
+
+
